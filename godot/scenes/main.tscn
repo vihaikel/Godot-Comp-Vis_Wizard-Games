@@ -1,0 +1,214 @@
+[gd_scene load_steps=25 format=3]
+
+[ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_game"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/spell_caster.gd" id="3_caster"]
+[ext_resource type="Script" path="res://scripts/wave_manager.gd" id="4_waves"]
+[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="6_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/fireball.tscn" id="7_fireball"]
+[ext_resource type="PackedScene" path="res://scenes/water_wave.tscn" id="8_water"]
+[ext_resource type="PackedScene" path="res://scenes/earth_wall.tscn" id="9_wall"]
+[ext_resource type="PackedScene" path="res://scenes/pillar.tscn" id="10_pillar"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_dusk"]
+sky_top_color = Color(0.12, 0.1, 0.26, 1)
+sky_horizon_color = Color(0.62, 0.38, 0.45, 1)
+ground_bottom_color = Color(0.07, 0.06, 0.09, 1)
+ground_horizon_color = Color(0.45, 0.32, 0.38, 1)
+
+[sub_resource type="Sky" id="Sky_dusk"]
+sky_material = SubResource("ProceduralSkyMaterial_dusk")
+
+[sub_resource type="Environment" id="Environment_arena"]
+background_mode = 2
+sky = SubResource("Sky_dusk")
+ambient_light_source = 3
+ambient_light_energy = 0.8
+tonemap_mode = 2
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.36, 0.3, 0.42, 1)
+fog_density = 0.006
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(120, 1, 120)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.17, 0.2, 0.16, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+material = SubResource("Mat_ground")
+size = Vector2(120, 120)
+
+[sub_resource type="StandardMaterial3D" id="Mat_arena"]
+albedo_color = Color(0.33, 0.3, 0.3, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_arena"]
+material = SubResource("Mat_arena")
+top_radius = 34.0
+bottom_radius = 34.0
+height = 0.1
+radial_segments = 64
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_circle"]
+albedo_color = Color(0.45, 0.38, 0.55, 1)
+emission_enabled = true
+emission = Color(0.4, 0.3, 0.7, 1)
+emission_energy_multiplier = 0.6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_circle"]
+material = SubResource("Mat_circle")
+top_radius = 2.2
+bottom_radius = 2.2
+height = 0.06
+radial_segments = 48
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock"]
+albedo_color = Color(0.36, 0.34, 0.38, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rock"]
+material = SubResource("Mat_rock")
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("player", "wave_manager", "hud", "projectiles_root")]
+script = ExtResource("1_game")
+player = NodePath("Player")
+wave_manager = NodePath("WaveManager")
+hud = NodePath("HUD")
+projectiles_root = NodePath("Projectiles")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_arena")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8192, 0, 0.5736, 0.4263, 0.6691, -0.6087, -0.3838, 0.7431, 0.5481, 0, 12, 0)
+light_color = Color(1, 0.88, 0.78, 1)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Arena" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Arena"]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Ground" type="MeshInstance3D" parent="Arena/Floor"]
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="ArenaDisc" type="MeshInstance3D" parent="Arena/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04, 0)
+mesh = SubResource("CylinderMesh_arena")
+
+[node name="MagicCircle" type="MeshInstance3D" parent="Arena/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.01, 0)
+mesh = SubResource("CylinderMesh_circle")
+
+[node name="Pillars" type="Node3D" parent="Arena"]
+
+[node name="RimSSE" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(-0.9397, 0, 0.342, 0, 1, 0, -0.342, 0, -0.9397, 11.629, 0, 31.95)
+
+[node name="RimSSW" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(-0.9397, 0, -0.342, 0, 1, 0, 0.342, 0, -0.9397, -11.629, 0, 31.95)
+
+[node name="RimN" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -34)
+
+[node name="RimNE" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(0.766, 0, 0.6428, 0, 1, 0, -0.6428, 0, 0.766, 21.855, 0, -26.046)
+
+[node name="RimNW" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(0.766, 0, -0.6428, 0, 1, 0, 0.6428, 0, 0.766, -21.855, 0, -26.046)
+
+[node name="RimE" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(0.1736, 0, 0.9848, 0, 1, 0, -0.9848, 0, 0.1736, 33.483, 0, -5.904)
+
+[node name="RimW" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(0.1736, 0, -0.9848, 0, 1, 0, 0.9848, 0, 0.1736, -33.483, 0, -5.904)
+
+[node name="RimSE" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(-0.5, 0, 0.866, 0, 1, 0, -0.866, 0, -0.5, 28.579, 0, 16.5)
+
+[node name="RimSW" parent="Arena/Pillars" instance=ExtResource("10_pillar")]
+transform = Transform3D(-0.5, 0, -0.866, 0, 1, 0, 0.866, 0, -0.5, -28.579, 0, 16.5)
+
+[node name="Rocks" type="Node3D" parent="Arena"]
+
+[node name="Rock1" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(0.9513, 0, -1.3228, 0.0828, 1.1234, 0.0596, 1.0134, -0.1134, 0.7288, 12.997, 0.3133, -35.708)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock2" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(-1.1426, 0, 0.26, 0.0145, 0.8086, 0.0637, -0.1994, 0.0726, -0.8761, -16.482, 0.2254, -35.346)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock3" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(-1.1444, 0, 0.0517, 0.0098, 0.7627, 0.217, -0.0382, 0.2414, -0.8466, 32.043, 0.2203, -18.5)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock4" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(1.656, 0, -0.777, -0.1308, 1.2284, -0.2787, 0.5797, 0.3421, 1.2356, -32.909, 0.3518, -19)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock5" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(0.8374, 0, 1.6076, 0.2491, 1.2231, -0.1298, -1.2052, 0.3121, 0.6278, 39.848, 0.3486, 3.486)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock6" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(-1.009, 0, 1.0362, -0.1904, 0.9654, -0.1854, -0.7685, -0.2953, -0.7483, -38.852, 0.2781, 3.399)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock7" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(-1.6635, 0, -1.2658, 0.247, 1.3885, -0.3246, 0.9342, -0.4532, -1.2277, 18, 0.402, 31.177)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock8" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(0.7062, 0, 0.8755, 0.0763, 0.7725, -0.0616, -0.6681, 0.1089, 0.5389, -12.655, 0.2163, 34.769)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock9" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(0.9621, 0, -0.878, -0.0697, 0.8958, -0.0764, 0.671, 0.1149, 0.7352, 6, 0.2505, 38)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock10" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(1.0661, 0, -2.2893, 0.0776, 1.7462, 0.0361, 1.7589, -0.0951, 0.8191, -29.5, 0.4856, 24)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Rock11" type="MeshInstance3D" parent="Arena/Rocks"]
+transform = Transform3D(-1.5301, 0, -1.5847, 0.0314, 1.5244, -0.0303, 1.2185, -0.0485, -1.1765, 36.5, 0.4236, 13.5)
+mesh = SubResource("BoxMesh_rock")
+
+[node name="Player" type="Node3D" parent="." node_paths=PackedStringArray("camera", "spell_caster")]
+script = ExtResource("2_player")
+camera = NodePath("Camera3D")
+spell_caster = NodePath("SpellCaster")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+fov = 75.0
+
+[node name="SpellCaster" type="Node" parent="Player" node_paths=PackedStringArray("player_node", "camera", "projectiles_root")]
+script = ExtResource("3_caster")
+player_node = NodePath("..")
+camera = NodePath("../Camera3D")
+projectiles_root = NodePath("../../Projectiles")
+fireball_scene = ExtResource("7_fireball")
+water_scene = ExtResource("8_water")
+wall_scene = ExtResource("9_wall")
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="Projectiles" type="Node3D" parent="."]
+
+[node name="WaveManager" type="Node" parent="." node_paths=PackedStringArray("enemies_root", "player")]
+script = ExtResource("4_waves")
+enemy_scene = ExtResource("6_enemy")
+enemies_root = NodePath("../Enemies")
+player = NodePath("../Player")
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]

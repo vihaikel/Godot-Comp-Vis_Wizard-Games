@@ -1,0 +1,5 @@
+# Target: Python 3.10 - 3.12, Windows (webcam via DirectShow).
+# No strict pins; pin only if a future release breaks the Tasks API.
+mediapipe
+opencv-python
+numpy

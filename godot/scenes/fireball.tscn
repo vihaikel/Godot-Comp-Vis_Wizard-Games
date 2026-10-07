@@ -1,0 +1,71 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/fireball.gd" id="1_fireball"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_core"]
+shading_mode = 0
+albedo_color = Color(1, 0.85, 0.35, 1)
+emission_enabled = true
+emission = Color(1, 0.6, 0.15, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+material = SubResource("Mat_core")
+radius = 0.22
+height = 0.44
+radial_segments = 16
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="Mat_glow"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.35, 0.05, 0.45)
+
+[sub_resource type="SphereMesh" id="SphereMesh_glow"]
+material = SubResource("Mat_glow")
+radius = 0.4
+height = 0.8
+radial_segments = 16
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="Mat_trail"]
+shading_mode = 0
+albedo_color = Color(1, 0.5, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_trail"]
+material = SubResource("Mat_trail")
+radius = 0.1
+height = 0.2
+radial_segments = 6
+rings = 3
+
+[node name="Fireball" type="Node3D" groups=["spells"]]
+script = ExtResource("1_fireball")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Core" type="MeshInstance3D" parent="Visual"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_core")
+
+[node name="Glow" type="MeshInstance3D" parent="Visual"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_glow")
+
+[node name="Light" type="OmniLight3D" parent="Visual"]
+light_color = Color(1, 0.55, 0.2, 1)
+light_energy = 2.0
+omni_range = 5.0
+
+[node name="Trail" type="CPUParticles3D" parent="Visual"]
+amount = 32
+lifetime = 0.35
+mesh = SubResource("SphereMesh_trail")
+emission_shape = 1
+emission_sphere_radius = 0.15
+direction = Vector3(0, 1, 0)
+spread = 180.0
+gravity = Vector3(0, 1.5, 0)
+initial_velocity_min = 0.2
+initial_velocity_max = 0.8
+scale_amount_min = 0.4
